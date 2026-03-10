@@ -1,4 +1,4 @@
-name: Secure CI/CD Pipeline
+name: Secure CI/CD Pipeline with SAST and DAST
 
 on:
   push:
@@ -6,19 +6,23 @@ on:
       - master
 
 jobs:
-  sonarcloud:
-    name: SonarCloud Analysis
+  security-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: SonarCloud Scan
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Run SonarCloud SAST Scan
         uses: SonarSource/sonarcloud-github-action@master
-        with:
-          args: >
-            -Dsonar.projectKey=anushh13_secure-pipeline-demo
-            -Dsonar.organization=anushh13
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Run OWASP ZAP DAST Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'http://localhost:4000'
