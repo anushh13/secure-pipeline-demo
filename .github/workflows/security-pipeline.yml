@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Node dependencies
+        run: |
+          npm install
 
   sast:
     name: SAST - SonarCloud Scan
@@ -24,10 +25,15 @@ jobs:
     needs: build
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
+        with:
+          args: >
+            -Dsonar.projectKey=anushh13_secure-pipeline-demo
+            -Dsonar.organization=anushh13
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -37,7 +43,8 @@ jobs:
     needs: sast
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.10.0
